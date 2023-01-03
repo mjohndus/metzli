@@ -53,11 +53,12 @@ class FpdfRenderer implements RendererInterface
         $cellHeight = $this->size / $matrix->getHeight();
 
         $this->pdf->SetFillColor($this->fgColor[0], $this->fgColor[1], $this->fgColor[2]);
+        $this->pdf->SetDrawColor($this->fgColor[0], $this->fgColor[1], $this->fgColor[2]);
 
         for ($x = 0; $x < $matrix->getWidth(); $x++) {
             for ($y = 0; $y < $matrix->getHeight(); $y++) {
                 if ($matrix->get($x, $y)) {
-                    $this->pdf->Rect($this->x + $x * $cellWidth, $this->y + $y * $cellHeight, $cellWidth, $cellHeight, 'F');
+                    $this->pdf->Rect($this->x + $x * $cellWidth, $this->y + $y * $cellHeight, $cellWidth, $cellHeight, 'DF');
                 }
             }
         }
