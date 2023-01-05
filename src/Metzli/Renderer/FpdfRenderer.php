@@ -27,15 +27,19 @@ class FpdfRenderer implements RendererInterface
     private $x;
     private $y;
     private $size;
+    private $border;
+    private $pattern;
     private $fgColor;
     private $bgColor;
 
-    public function __construct(FPDF $pdf, $x, $y, $size, $fgColor = array(0, 0, 0), $bgColor = null)
+    public function __construct(FPDF $pdf, $x, $y, $size, $border = 0, $pattern = 0, $fgColor = array(0, 0, 0), $bgColor = null)
     {
         $this->pdf = $pdf;
         $this->x = $x;
         $this->y = $y;
         $this->size = $size;
+        $this->border = $border;
+        $this->pattern = $pattern;
         $this->fgColor = $fgColor;
         $this->bgColor = $bgColor;
     }
@@ -44,17 +48,35 @@ class FpdfRenderer implements RendererInterface
     {
         $matrix = $code->getMatrix();
 
-        if ($this->bgColor != null) {
-            $this->pdf->SetFillColor($this->bgColor[0], $this->bgColor[1], $this->bgColor[2]);
-            $this->pdf->Rect($this->x, $this->y, $this->size, $this->size, 'F');
-        }
+        $border = $this->border == 0 ? 'F' : 'FD';
 
         $cellWidth = $this->size / $matrix->getWidth();
         $cellHeight = $this->size / $matrix->getHeight();
 
+        if (!empty($this->bgColor)) {
+            $this->pdf->SetFillColor($this->bgColor[0], $this->bgColor[1], $this->bgColor[2]);
+            $this->pdf->SetDrawColor($this->fgColor[0], $this->fgColor[1], $this->fgColor[2]);
+            if ($this->pattern == 0) {
+                $this->pdf->Rect($this->x-0.4, $this->y-0.4, $this->size+0.2, $this->size+0.2, $border);
+                }
+                elseif ($this->pattern != 0) {
+                $this->pdf->Rect($this->x-$this->pattern, $this->y-$this->pattern, $this->size+($this->pattern*2)-0.6, $this->size+($this->pattern*2)-0.6, $border);
+            }
+        }
+
+        if (empty($this->bgColor) AND $this->border == 1) {
+            $this->pdf->SetDrawColor($this->fgColor[0], $this->fgColor[1], $this->fgColor[2]);
+            if ($this->pattern == 0) {
+                $this->pdf->Rect($this->x-0.3, $this->y-0.3, $this->size+0.1, $this->size+0.1, 'D');
+                }
+                elseif ($this->pattern != 0) {
+                    $this->pdf->Rect($this->x-$this->pattern, $this->y-$this->pattern, $this->size+($this->pattern*2)-0.6, $this->size+($this->pattern*2)-0.6, 'D');
+            }
+        }
+        
         $this->pdf->SetFillColor($this->fgColor[0], $this->fgColor[1], $this->fgColor[2]);
         $this->pdf->SetDrawColor($this->fgColor[0], $this->fgColor[1], $this->fgColor[2]);
-
+        
         for ($x = 0; $x < $matrix->getWidth(); $x++) {
             for ($y = 0; $y < $matrix->getHeight(); $y++) {
                 if ($matrix->get($x, $y)) {
