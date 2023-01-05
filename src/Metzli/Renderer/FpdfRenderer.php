@@ -58,7 +58,7 @@ class FpdfRenderer implements RendererInterface
         for ($x = 0; $x < $matrix->getWidth(); $x++) {
             for ($y = 0; $y < $matrix->getHeight(); $y++) {
                 if ($matrix->get($x, $y)) {
-                    $this->pdf->Rect($this->x + $x * $cellWidth, $this->y + $y * $cellHeight, $cellWidth, $cellHeight, 'DF');
+                    $this->pdf->Rect($this->x+($x-0.15)+$x*$cellWidth, $this->y+($x-0.15)+$y*$cellHeight, $cellWidth-0.15, $cellHeight-0.15, 'DF');
                 }
             }
         }
