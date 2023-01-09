@@ -34,7 +34,7 @@ class FpdfRendererTest extends Testcase
             $pdf = new FPDF('P', 'mm', 'A4');
             $pdf->AddPage();
 
-            $renderer = new FpdfRenderer($pdf, 10, 10, 100, [255, 0, 0], [0, 0, 255]);
+            $renderer = new FpdfRenderer($pdf, 10, 10, 100, 1, [255, 0, 0], [0, 0, 255], [2, 4, 2, 4]);
             $renderer->render($code);
 
             $pdf->Output('F', $path);
