@@ -31,8 +31,8 @@ class FpdfRenderer implements RendererInterface
     private $fgColor;
     private $bgColor;
     private $padding = array('T' => 0, 'R' => 0, 'B' => 0, 'L' => 0);
-    
-    public function __construct(FPDF $pdf, $x, $y, $size, $border = 0, $fgColor = array(0, 0, 0), $bgColor = null, $padding = array(0, 0, 0, 0))
+
+    public function __construct(FPDF $pdf, $x, $y, $size, $border = 0, $fgColor = array(0, 0, 0), $bgColor = null, $fsColor = null, $padding = array(0, 0, 0, 0))
     {
         $this->pdf = $pdf;
         $this->x = $x;
@@ -41,31 +41,32 @@ class FpdfRenderer implements RendererInterface
         $this->border = $border;
         $this->fgColor = $fgColor;
         $this->bgColor = $bgColor;
-        $this->pad = $this->setpadding($padding);
+        $this->fsColor = $fsColor;
+        $this->padding = $this->setpadding($padding);
     }
 
     private function setpadding($padding)
     {
         $par = ['T', 'R', 'B', 'L'];
-        foreach ($padding as $key => $var) {
-            $var = intval($var);
-            $pad[$par[$key][0]] = $var;
+
+        foreach ($padding as $key => $val) {
+            $val = intval($val);
+            $pattern[$par[$key][0]] = $val;
         }
-        return $pad;
+        return $pattern;
     }
-    
+
     public function render(AztecCode $code)
     {
-        $this->pdf->SetLineWidth(0.2);
+        $this->pdf->SetLineWidth(0.5);
         $this->pdf->SetDrawColor($this->fgColor[0], $this->fgColor[1], $this->fgColor[2]);
-
         $border = $this->border == 0 ? 'F' : 'DF';
 
-        $sx = $this->x-$this->pad['L']-0.1;
-        $sy = $this->y-$this->pad['T']-0.1;
+        $sx = $this->x-$this->padding['L']-0.1;
+        $sy = $this->y-$this->padding['T']-0.1;
 
-        $width = $this->size + $this->pad['R'] + $this->pad['L']+0.2;
-        $height = $this->size + $this->pad['B'] + $this->pad['T']+0.2;
+        $width = $this->size + $this->padding['R'] + $this->padding['L']+0.2;
+        $height = $this->size + $this->padding['B'] + $this->padding['T']+0.2;
 
         $matrix = $code->getMatrix();
 
@@ -81,14 +82,24 @@ class FpdfRenderer implements RendererInterface
             $this->pdf->Rect($sx, $sy, $width, $height, 'D');
         }
 
-        $this->pdf->SetFillColor($this->fgColor[0], $this->fgColor[1], $this->fgColor[2]);
+        if (!empty($this->fsColor)) {
+            $this->pdf->SetFillColor($this->fsColor[0], $this->fsColor[1], $this->fsColor[2]);
+        }
+
         $this->pdf->SetLineWidth(0.1);
 
         for ($x = 0; $x < $matrix->getWidth(); $x++) {
             for ($y = 0; $y < $matrix->getHeight(); $y++) {
                 if ($matrix->get($x, $y)) {
+                    $this->pdf->SetFillColor($this->fgColor[0], $this->fgColor[1], $this->fgColor[2]);
+                    $this->pdf->SetDrawColor($this->fgColor[0], $this->fgColor[1], $this->fgColor[2]);
+                    $this->pdf->Rect($this->x+$x*$cellWidth, $this->y+$y*$cellHeight, $cellWidth, $cellHeight, 'DF');
+                } elseif ($this->fsColor !== null) {
+                    $this->pdf->SetFillColor($this->fsColor[0], $this->fsColor[1], $this->fsColor[2]);
+                    $this->pdf->SetDrawColor(255, 255, 0);
                     $this->pdf->Rect($this->x+$x*$cellWidth, $this->y+$y*$cellHeight, $cellWidth, $cellHeight, 'DF');
                 }
+
             }
         }
     }

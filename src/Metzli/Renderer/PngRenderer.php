@@ -26,7 +26,7 @@ class PngRenderer implements RendererInterface
     private $fgColor;
     private $bgColor;
 
-    public function __construct($factor = 4, $fgColor = array(0, 0, 0), $bgColor = array(255, 255, 255))
+    public function __construct($factor = 4, $fgColor = array(0, 0, 0), $bgColor = null)
     {
         $this->factor = $factor;
         $this->fgColor = $fgColor;
@@ -51,21 +51,25 @@ class PngRenderer implements RendererInterface
     {
         $f = $this->factor;
         $matrix = $code->getMatrix();
+
         $im = imagecreatetruecolor($matrix->getWidth() * $f, $matrix->getHeight() * $f);
+              imagesavealpha($im, true);
         $fg = $this->allocateColor($im, $this->fgColor);
-        if (is_array($this->bgColor)) {
+        $fs = $this->allocateColor($im, [255, 255, 0]);
+        if ($this->bgColor != null) {
             $bg = $this->allocateColor($im, $this->bgColor);
-        } else {
+          } else {
             $bg = imagecolorallocatealpha($im, 0, 0, 0, 127);
-            imagesavealpha($im, true);
         }
-        
+
         imagefill($im, 0, 0, $bg);
 
         for ($x = 0; $x < $matrix->getWidth(); $x++) {
             for ($y = 0; $y < $matrix->getHeight(); $y++) {
                 if ($matrix->get($x, $y)) {
                     imagefilledrectangle($im, $x * $f, $y * $f, (($x + 1) * $f - 1), (($y + 1) * $f - 1), $fg);
+                } else {
+                    imagefilledrectangle($im, $x * $f, $y * $f, (($x + 1) * $f - 1), (($y + 1) * $f - 1), $fs);
                 }
             }
         }
