@@ -187,7 +187,7 @@ class Encoder
         $code->setCodeWords($messageSizeInWords);
         $code->setMatrix($matrix);
 
-        return $code;
+        return [$code, str_split(implode("", $matrix->getd()), $matrixSize)];
     }
 
     private static function getBitsPerLayer($layer, $full = true)
@@ -270,7 +270,6 @@ class Encoder
             }
             $out->append((($j == 0) ? 1 : 0));
         }
-
         return $out;
     }
 
@@ -329,7 +328,6 @@ class Encoder
         $matrix->set($center + $size, $center - $size);
         $matrix->set($center + $size, $center - $size + 1);
         $matrix->set($center + $size, $center + $size - 1);
-
         return $matrix;
     }
 
