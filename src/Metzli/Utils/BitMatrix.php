@@ -50,6 +50,11 @@ class BitMatrix
         return $this->data->get($index);
     }
 
+    public function getd()
+    {
+        return $this->data->asArray();
+    }
+
     public function flip($x, $y)
     {
         $index = $this->getIndex($x, $y);
