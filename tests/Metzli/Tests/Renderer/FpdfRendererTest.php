@@ -27,14 +27,14 @@ class FpdfRendererTest extends Testcase
 {
     public function testRender()
     {
-        $code = Encoder::encode('Hello World!');
+        list($code, $matrix) = Encoder::encode('Hello World!');
         $path = tempnam(sys_get_temp_dir(), 'metzli');
 
         try {
             $pdf = new FPDF('P', 'mm', 'A4');
             $pdf->AddPage();
 
-            $renderer = new FpdfRenderer($pdf, 10, 10, 100, 1, [255, 0, 0], [0, 0, 255], [2, 4, 2, 4]);
+            $renderer = new FpdfRenderer($pdf, 10, 10, 100, 1, [255, 0, 0], [155, 155, 155], [0, 0, 255], [2, 4, 2, 4]);
             $renderer->render($code);
 
             $pdf->Output('F', $path);

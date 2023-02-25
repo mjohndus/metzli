@@ -26,7 +26,7 @@ class SvgRendererTest extends Testcase
 {
     public function testRender()
     {
-        $code = Encoder::encode('Hello World!');
+        list($code, $matrix) = Encoder::encode('Hello World!');
         $path = tempnam(sys_get_temp_dir(), 'metzli');
 
         try {
